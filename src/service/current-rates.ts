@@ -51,7 +51,7 @@ export async function getCurrentRates (): Promise<ExchangeRates> {
 
     if (needsRefresh) {
       // Start background revalidation if needed
-      revalidator.startRevalidation(async () => {
+      await revalidator.startRevalidation(async () => {
         await backgroundWorker.addTask({
           type: 'SYNCHRONIZE_WITH_STORAGE'
         })

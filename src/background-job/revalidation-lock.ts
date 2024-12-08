@@ -1,4 +1,4 @@
-import { logger } from "../util/logger.js"
+import { logger } from '../util/logger.js'
 
 interface RevalidationLockState {
   inProgress: boolean
