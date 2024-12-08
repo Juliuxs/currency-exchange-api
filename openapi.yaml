@@ -1,0 +1,170 @@
+openapi: 3.0.0
+info:
+  title: Currency Exchange Rate API
+  description: API for retrieving current currency exchange rates and access logs
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: API base path
+
+paths:
+  /v1/current-rates:
+    get:
+      summary: Get current exchange rates
+      description: Retrieves the latest currency exchange rates
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  base:
+                    type: string
+                    description: Base currency code
+                    example: "USD"
+                  rates:
+                    type: object
+                    description: Exchange rates for different currencies
+                    additionalProperties:
+                      type: number
+                    example:
+                      EUR: 0.85
+                      GBP: 0.73
+                      JPY: 110.25
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Timestamp of when rates were last updated
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  isOperational:
+                    type: boolean
+                    example: false
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Unable to fetch latest currency rates from provider"
+                  isOperational:
+                    type: boolean
+                    example: false
+
+  /v1/access-logs:
+    get:
+      summary: Get access logs
+      description: Retrieves access logs with pagination and date filtering
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          description: Start date for filtering logs
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          description: End date for filtering logs
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Number of records to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of records to skip
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ipAddress:
+                          type: string
+                          description: IP address of the request
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: Timestamp when the access was logged
+                  pagination:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                        description: Number of records returned
+                      offset:
+                        type: integer
+                        description: Number of records skipped
+        '400':
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Invalid input"
+                  details:
+                    type: array
+                    items:
+                      type: object
+                  isOperational:
+                    type: boolean
+                    example: true
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Failed to retrieve access logs"
+                  isOperational:
+                    type: boolean
+                    example: true
