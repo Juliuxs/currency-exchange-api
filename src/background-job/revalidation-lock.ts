@@ -1,3 +1,5 @@
+import { logger } from "../util/logger.js"
+
 interface RevalidationLockState {
   inProgress: boolean
   promise: Promise<void> | null
@@ -21,7 +23,7 @@ export function createRevalidationLock (): RevalidationLock {
           try {
             await revalidateFn()
           } catch (error) {
-            console.error('Background revalidation failed:', error)
+            logger.error('Background revalidation failed:', error)
           } finally {
             state.inProgress = false
             state.promise = null
