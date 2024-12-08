@@ -15,11 +15,11 @@ const app = express()
 const server = createServer(app)
 
 // Security middlewares
-app.use(helmet()) 
+app.use(helmet())
 app.use(cors())
 
 // Performance middlewares
-app.use(compression()) 
+app.use(compression())
 app.use(express.json({ limit: '10kb' }))
 
 app.set('trust proxy', true)
@@ -29,7 +29,6 @@ AppDataSource.initialize()
   .then(async () => {
     logger.info('****************************')
     logger.info('*    DB: connected')
-
 
     // Start server after everything is initialized
     server.listen(config.port, () => {

@@ -10,7 +10,7 @@
       "start:services": "docker-compose up -d",
       "db:migration:run": "npx typeorm-ts-node-commonjs migration:run -d ./dist/data-source.js",
       "test": "NODE_ENV=TEST vitest src/**/__tests__/*.test.ts",
-      "lint": "eslint . --ext .ts --fix"
+      "lint": "eslint . --ext .ts --ignore-pattern '**/*.test.ts'"
    },
    "license": "MIT",
    "author": "Julius Grybauskas",

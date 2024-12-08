@@ -15,7 +15,9 @@ const configSchema = z.object({
   })
 })
 
-export function getConfig () {
+type Config = z.infer<typeof configSchema>
+
+export function getConfig (): Config {
   const config = {
     port: Number(process.env.PORT),
     openExchangeRates: {
