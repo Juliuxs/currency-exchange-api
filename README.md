@@ -17,7 +17,7 @@ A RESTful API service that provides current currency exchange rates with backgro
 - `/src`
   - `/background-job` - Background job processing
   - `/controller` - API route handlers
-  - `/entity` - TypeORM entities
+  - `/entity` - Entities
   - `/middleware` - Express middleware
   - `/provider` - External service integrations
   - `/schema` - Request/response validation schemas
@@ -42,11 +42,15 @@ A RESTful API service that provides current currency exchange rates with backgro
    ```
 3. Configure environment variables:
    - Copy `.env.example` to `.env` and set the necessary variables.
-4. Run database migrations:
+4. Start required services:
+   ```sh
+   npm run db:setup
+   ```
+5. Run database migrations:
    ```sh
    npm run db:migration:run
    ```
-5. Start the development server:
+6. Start the development server:
    ```sh
    npm run dev
    ```
@@ -61,4 +65,5 @@ A RESTful API service that provides current currency exchange rates with backgro
 - `npm run test` - Runs all tests
 - `npm run coverage:test` - Runs tests in coverage mode
 - `npm run lint` - Lints the codebase
-- `npm run migration:run` - Runs database migrations
+- `npm run db:migration:run` - Runs database migrations
+- `npm run db:setup` - Starts required services
