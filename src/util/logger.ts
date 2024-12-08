@@ -1,6 +1,5 @@
 import { pino, type Logger as PinoLoggerType } from 'pino'
 
-// Logger interface that business logic will depend on
 export interface Logger {
   info: (message: string, context?: Record<string, unknown>) => void
   error: (message: string, error?: Error, context?: Record<string, unknown>) => void
@@ -8,7 +7,6 @@ export interface Logger {
   debug: (message: string, context?: Record<string, unknown>) => void
 }
 
-// Concrete implementation using Pino
 class PinoLogger implements Logger {
   private readonly logger: PinoLoggerType
 
