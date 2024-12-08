@@ -55,9 +55,8 @@ A RESTful API service that provides current currency exchange rates with backgro
    npm run dev
    ```
 
-# End of Selection
-```
-### Available Commands
+## Available Commands
+
 
 - `npm run build` - Compiles TypeScript code to JavaScript
 - `npm run start` - Starts the production server
