@@ -76,7 +76,7 @@ interface ExchangeRates {
 }
 
 export async function getCurrentRatesAndLogAccess (ip: string): Promise<ExchangeRates> {
-  backgroundWorker.addTask({
+  void backgroundWorker.addTask({
     type: 'LOG_ACCESS',
     payload: {
       ipAddress: ip,

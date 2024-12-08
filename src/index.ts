@@ -16,17 +16,14 @@ import { logger } from './util/logger.js'
 const app = express()
 const server = createServer(app)
 
-// Security middlewares
-app.use(helmet()) // Adds various HTTP headers for security
-app.use(cors()) // By default, CORS allows:
+app.use(helmet())
+app.use(cors())
 
-// Performance middlewares
-app.use(compression()) // Compress responses
-app.use(express.json({ limit: '10kb' })) // Body parser with size limit
+app.use(compression())
+app.use(express.json({ limit: '10kb' }))
 
 app.set('trust proxy', true)
 
-// Initialize database first
 AppDataSource.initialize()
   .then(async () => {
     logger.info('****************************')
@@ -36,15 +33,12 @@ AppDataSource.initialize()
 
     await swagger(app)
 
-    // Route not found middleware
     app.use((req, _res, next) => {
       next(new AppError(404, `Such route does not exist ${req.originalUrl}`, { isOperational: true }))
     })
 
-    // Global error handler
     app.use(errorHandler)
 
-    // Start server after everything is initialized
     server.listen(config.port, () => {
       logger.info('*    Backend: ready')
       logger.info(`*    Port: ${config.port}`)
