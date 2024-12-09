@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getCurrentRatesAndLogAccess, getCurrentRates, synchronizeWithStorage } from '../current-rates.js'
+import { getCurrentRatesAndLogAccess, getCurrentRates, synchronizeWithStorage, syncOnLaunch } from '../current-rates.js'
 import { backgroundWorker } from '../../background-job/queue.js'
 import { currencyProvider } from '../../provider/currency-exchange-rates.js'
 import { AppError } from '../../middleware/error-handler.js'
@@ -7,6 +7,11 @@ import { AppError } from '../../middleware/error-handler.js'
 const mockRepository = vi.hoisted(() => ({
   findOne: vi.fn(),
   save: vi.fn()
+}))
+
+const mockLogger = vi.hoisted(() => ({
+  info: vi.fn(),
+  error: vi.fn()
 }))
 
 vi.mock('../../background-job/queue.js', () => ({
@@ -25,6 +30,10 @@ vi.mock('../../provider/currency-exchange-rates.js', () => ({
   currencyProvider: {
     getLatestRates: vi.fn()
   }
+}))
+
+vi.mock('../../util/logger.js', () => ({
+  logger: mockLogger
 }))
 
 describe('getCurrentRatesAndLogAccess', () => {
@@ -146,5 +155,64 @@ describe('synchronizeWithStorage', () => {
     mockRepository.save.mockRejectedValue(new Error('DB error'))
 
     await expect(synchronizeWithStorage()).rejects.toThrow(AppError)
+  })
+})
+
+describe('syncOnLaunch', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any)
+  })
+
+  it('skips sync when rates exist', async () => {
+    const mockRates = {
+      base: 'USD',
+      rates: { EUR: 0.85 },
+      createdAt: new Date()
+    }
+    mockRepository.findOne.mockResolvedValue(mockRates)
+
+    await syncOnLaunch()
+
+    expect(currencyProvider.getLatestRates).not.toHaveBeenCalled()
+    expect(mockLogger.info).toHaveBeenCalledWith('*    Data store is up to date')
+  })
+
+  it('performs initial sync when no rates exist', async () => {
+    mockRepository.findOne.mockResolvedValue(null)
+    const providerRates = {
+      base: 'USD',
+      rates: { EUR: 0.85 },
+      timestamp: 1234567890
+    }
+    vi.mocked(currencyProvider.getLatestRates).mockResolvedValue(providerRates)
+    mockRepository.save.mockImplementation(data => ({
+      ...data,
+      createdAt: new Date()
+    }))
+
+    await syncOnLaunch()
+
+    expect(currencyProvider.getLatestRates).toHaveBeenCalled()
+    expect(mockLogger.info).toHaveBeenCalledWith('*    Initial sync with provider completed')
+  })
+
+  it('exits process when initial sync fails', async () => {
+    mockRepository.findOne.mockResolvedValue(null)
+    vi.mocked(currencyProvider.getLatestRates).mockRejectedValue(new Error('Provider error'))
+
+    await syncOnLaunch()
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Failed initial sync with provider:', expect.any(Error))
+    expect(process.exit).toHaveBeenCalledWith(1)
+  })
+
+  it('exits process when database check fails', async () => {
+    mockRepository.findOne.mockRejectedValue(new Error('DB error'))
+
+    await syncOnLaunch()
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Error synchronizing on launch failed:', expect.any(Error))
+    expect(process.exit).toHaveBeenCalledWith(1)
   })
 })

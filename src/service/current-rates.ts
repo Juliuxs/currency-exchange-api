@@ -7,6 +7,13 @@ import { backgroundWorker } from '../background-job/queue.js'
 
 const currencyRateRepository = AppDataSource.getRepository(CurrencyRate)
 
+async function getLatestStoredRates(): Promise<CurrencyRate | null> {
+  return await currencyRateRepository.findOne({
+    where: {},
+    order: { createdAt: 'DESC' }
+  })
+}
+
 export async function synchronizeWithStorage (): Promise<ExchangeRates> {
   try {
     const latestRates = await currencyProvider.getLatestRates()
@@ -31,13 +38,32 @@ export async function synchronizeWithStorage (): Promise<ExchangeRates> {
   }
 }
 
+export async function syncOnLaunch (): Promise<void> {
+  try {
+    const storedRates = await getLatestStoredRates()
+
+    if (!storedRates) {
+      try {
+        await synchronizeWithStorage()
+        logger.info('*    Initial sync with provider completed')
+      } catch (error) {
+        logger.error('Failed initial sync with provider:', error)
+        process.exit(1)
+      }
+    }
+
+    logger.info('*    Data store is up to date')
+  } catch (error) {
+    logger.error('Error synchronizing on launch failed:', error)
+    process.exit(1)
+  }
+}
+
 export async function getCurrentRates (): Promise<ExchangeRates> {
   try {
-    const storedRates = await currencyRateRepository.findOne({
-      where: {},
-      order: { createdAt: 'DESC' }
-    })
+    const storedRates = await getLatestStoredRates()
 
+    // In case of data gone in database we will syncronize with provider
     if (!storedRates) {
       return await synchronizeWithStorage()
     }

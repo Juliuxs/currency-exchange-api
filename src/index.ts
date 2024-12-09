@@ -13,6 +13,7 @@ import { errorHandler, AppError } from './middleware/error-handler.js'
 import { swagger } from './middleware/open-api.js'
 import { logger } from './util/logger.js'
 import { syncRatesCron } from './cron/index.js'
+import { syncOnLaunch } from './service/current-rates.js'
 
 const app = express()
 const server = createServer(app)
@@ -30,6 +31,8 @@ AppDataSource.initialize()
     logger.info('****************************')
     logger.info('*    DB: connected')
 
+    await syncOnLaunch()
+    
     app.use('/api', router)
 
     await swagger(app)
