@@ -17,7 +17,7 @@ A RESTful API service that provides current currency exchange rates with backgro
 - `/src`
   - `/background-job` - Background job processing
   - `/controller` - API route handlers
-  - `/entity` - Entities
+  - `/entity` - TypeORM entities
   - `/middleware` - Express middleware
   - `/provider` - External service integrations
   - `/schema` - Request/response validation schemas
@@ -29,6 +29,14 @@ A RESTful API service that provides current currency exchange rates with backgro
 ### Prerequisites
 - Node.js v20.9.0 or higher
 - npm v10.0.0 or higher
+- Docker and Docker Compose
+
+### External API Requirements
+You'll need to sign up for a free API key at [Open Exchange Rates](https://openexchangerates.org/):
+1. Create an account at https://openexchangerates.org/signup
+2. Once registered, get your API key from the dashboard
+3. Add your API key to the `.env` file as `OPEN_EXCHANGE_API_KEY`
+4. The API URL should be set as `OPEN_EXCHANGE_URL=https://openexchangerates.org/api`
 
 ### Steps to get started
 1. Clone the repository:
@@ -42,7 +50,7 @@ A RESTful API service that provides current currency exchange rates with backgro
    ```
 3. Configure environment variables:
    - Copy `.env.example` to `.env` and set the necessary variables.
-4. Start required services:
+4. Start required services (PostgreSQL):
    ```sh
    npm run db:setup
    ```
@@ -56,7 +64,6 @@ A RESTful API service that provides current currency exchange rates with backgro
    ```
 
 ## Available Commands
-
 
 - `npm run build` - Compiles TypeScript code to JavaScript
 - `npm run start` - Starts the production server

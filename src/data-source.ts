@@ -17,5 +17,5 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   entities: [CurrencyRate, AccessLog],
-  migrations: ['dist/migration/**/*.js']
+  migrations: ['src/migration/**/*.ts']
 })
