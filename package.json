@@ -11,7 +11,7 @@
       "db:migration:run": "npx typeorm-ts-node-esm migration:run -d ./src/data-source.ts",
       "test": "NODE_ENV=TEST vitest",
       "test:coverage": "NODE_ENV=TEST vitest --coverage",
-      "lint": "eslint . --ext .ts --ignore-pattern '**/*.test.ts"
+      "lint": "eslint . --ext .ts --ignore-pattern '**/*.test.ts'"
    },
    "license": "MIT",
    "author": "Julius Grybauskas",
