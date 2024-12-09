@@ -32,7 +32,6 @@ AppDataSource.initialize()
     logger.info('*    DB: connected')
 
     await syncOnLaunch()
-    
     app.use('/api', router)
 
     await swagger(app)

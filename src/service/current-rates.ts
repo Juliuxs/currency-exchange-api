@@ -7,7 +7,7 @@ import { backgroundWorker } from '../background-job/queue.js'
 
 const currencyRateRepository = AppDataSource.getRepository(CurrencyRate)
 
-async function getLatestStoredRates(): Promise<CurrencyRate | null> {
+async function getLatestStoredRates (): Promise<CurrencyRate | null> {
   return await currencyRateRepository.findOne({
     where: {},
     order: { createdAt: 'DESC' }
