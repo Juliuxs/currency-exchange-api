@@ -16,6 +16,7 @@ A RESTful API service that provides current currency exchange rates with backgro
 
 - `/src`
   - `/background-job` - Background job processing
+  - `/cron` - Cron jobs
   - `/controller` - API route handlers
   - `/entity` - TypeORM entities
   - `/middleware` - Express middleware
