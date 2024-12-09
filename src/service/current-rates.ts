@@ -1,14 +1,11 @@
 import { currencyProvider } from '../provider/currency-exchange-rates.js'
 import { AppDataSource } from '../data-source.js'
 import { CurrencyRate } from '../entity/currency-rates.js'
-import { checkTTL } from '../util/check-ttl.js'
-import { createRevalidationLock } from '../background-job/revalidation-lock.js'
 import { AppError } from '../middleware/error-handler.js'
 import { logger } from '../util/logger.js'
 import { backgroundWorker } from '../background-job/queue.js'
 
 const currencyRateRepository = AppDataSource.getRepository(CurrencyRate)
-const revalidator = createRevalidationLock()
 
 export async function synchronizeWithStorage (): Promise<ExchangeRates> {
   try {
@@ -41,24 +38,10 @@ export async function getCurrentRates (): Promise<ExchangeRates> {
       order: { createdAt: 'DESC' }
     })
 
-    // If no rates exist yet, we must initially populate them
     if (!storedRates) {
       return await synchronizeWithStorage()
     }
 
-    // Check if rates need refreshing
-    const needsRefresh = checkTTL(storedRates.createdAt.getTime())
-
-    if (needsRefresh) {
-      // Start background revalidation if needed
-      await revalidator.startRevalidation(async () => {
-        await backgroundWorker.addTask({
-          type: 'SYNCHRONIZE_WITH_STORAGE'
-        })
-      })
-    }
-
-    // Always return the latest stored rates immediately
     return {
       base: storedRates.base,
       rates: storedRates.rates,

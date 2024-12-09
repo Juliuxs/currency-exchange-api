@@ -9,10 +9,6 @@ const mockRepository = vi.hoisted(() => ({
   save: vi.fn()
 }))
 
-const mockRevalidator = vi.hoisted(() => ({
-  startRevalidation: vi.fn()
-}))
-
 vi.mock('../../background-job/queue.js', () => ({
   backgroundWorker: {
     addTask: vi.fn()
@@ -29,10 +25,6 @@ vi.mock('../../provider/currency-exchange-rates.js', () => ({
   currencyProvider: {
     getLatestRates: vi.fn()
   }
-}))
-
-vi.mock('../../background-job/revalidation-lock.js', () => ({
-  createRevalidationLock: () => mockRevalidator
 }))
 
 describe('getCurrentRatesAndLogAccess', () => {
@@ -76,7 +68,7 @@ describe('getCurrentRates', () => {
     vi.clearAllMocks()
   })
 
-  it('returns stored rates when available and fresh', async () => {
+  it('returns stored rates when available', async () => {
     const mockRates = {
       base: 'USD',
       rates: { EUR: 0.85 },
@@ -91,7 +83,6 @@ describe('getCurrentRates', () => {
       rates: { EUR: 0.85 },
       timestamp: mockRates.createdAt.toISOString()
     })
-    expect(mockRevalidator.startRevalidation).not.toHaveBeenCalled()
   })
 
   it('synchronizes with storage when no rates exist', async () => {
@@ -140,7 +131,7 @@ describe('synchronizeWithStorage', () => {
   })
 
   it('throws error when provider fails', async () => {
-    vi.mocked(currencyProvider.getLatestRates).mockResolvedValue(null)
+    vi.mocked(currencyProvider.getLatestRates).mockRejectedValue(new Error('Provider error'))
 
     await expect(synchronizeWithStorage()).rejects.toThrow(AppError)
   })
