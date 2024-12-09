@@ -12,6 +12,7 @@ import { config } from './config.js'
 import { errorHandler, AppError } from './middleware/error-handler.js'
 import { swagger } from './middleware/open-api.js'
 import { logger } from './util/logger.js'
+import { syncRatesCron } from './cron/index.js'
 
 const app = express()
 const server = createServer(app)
@@ -38,6 +39,8 @@ AppDataSource.initialize()
     })
 
     app.use(errorHandler)
+
+    syncRatesCron.start()
 
     server.listen(config.port, () => {
       logger.info('*    Backend: ready')

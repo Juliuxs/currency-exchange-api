@@ -6,7 +6,7 @@ const configSchema = z.object({
     apiKey: z.string(),
     baseUrl: z.string()
   }),
-  ratesExpirationTimeInMs: z.number(),
+  syncIntervalInMins: z.string(),
   database: z.object({
     host: z.string(),
     port: z.number(),
@@ -24,7 +24,7 @@ export function getConfig (): Config {
       apiKey: process.env.OPEN_EXCHANGE_RATES_API_KEY,
       baseUrl: process.env.OPEN_EXCHANGE_RATES_BASE_URL
     },
-    ratesExpirationTimeInMs: Number(process.env.CURRENCY_RATES_EXPIRATION_TIME),
+    syncIntervalInMins: process.env.SYNC_INTERVAL_IN_MINS,
     database: {
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
