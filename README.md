@@ -63,6 +63,13 @@ You'll need to sign up for a free API key at [Open Exchange Rates](https://opene
    npm run dev
    ```
 
+## API Documentation
+
+Once the server is running, you can access the OpenAPI documentation at:
+- http://localhost:3000/api-docs
+
+This interactive documentation provides detailed information about all available endpoints, request/response schemas, and allows you to try out the API directly from the browser.
+
 ## Available Commands
 
 - `npm run build` - Compiles TypeScript code to JavaScript

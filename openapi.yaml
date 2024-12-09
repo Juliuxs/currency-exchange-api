@@ -37,7 +37,8 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
-                    description: Timestamp of when rates were last updated
+                    description: Timestamp of when rates were last updated (UTC)
+                    example: "2024-01-01T12:00:00Z"
         '500':
           description: Internal server error
           content:
@@ -51,25 +52,6 @@ paths:
                   message:
                     type: string
                     example: "Internal server error"
-                  isOperational:
-                    type: boolean
-                    example: false
-        '503':
-          description: Service unavailable
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "error"
-                  message:
-                    type: string
-                    example: "Unable to fetch latest currency rates from provider"
-                  isOperational:
-                    type: boolean
-                    example: false
 
   /v1/access-logs:
     get:
@@ -81,13 +63,15 @@ paths:
           schema:
             type: string
             format: date-time
-          description: Start date for filtering logs
+          description: Start date for filtering logs (UTC ISO 8601 format with Z suffix)
+          example: "2024-01-01T00:00:00Z"
         - in: query
           name: endDate
           schema:
             type: string
             format: date-time
-          description: End date for filtering logs
+          description: End date for filtering logs (UTC ISO 8601 format with Z suffix)
+          example: "2024-01-02T00:00:00Z"
         - in: query
           name: limit
           schema:
@@ -119,10 +103,12 @@ paths:
                         ipAddress:
                           type: string
                           description: IP address of the request
+                          example: "192.168.1.1"
                         createdAt:
                           type: string
                           format: date-time
-                          description: Timestamp when the access was logged
+                          description: Timestamp when the access was logged (UTC)
+                          example: "2024-01-01T12:00:00Z"
                   pagination:
                     type: object
                     properties:
@@ -149,9 +135,13 @@ paths:
                     type: array
                     items:
                       type: object
-                  isOperational:
-                    type: boolean
-                    example: true
+                      properties:
+                        field:
+                          type: string
+                          example: "startDate"
+                        message:
+                          type: string
+                          example: "startDate must be a valid ISO 8601 UTC date string (with Z suffix)"
         '500':
           description: Internal server error
           content:
@@ -164,7 +154,4 @@ paths:
                     example: "error"
                   message:
                     type: string
-                    example: "Failed to retrieve access logs"
-                  isOperational:
-                    type: boolean
-                    example: true
+                    example: "Internal server error"
