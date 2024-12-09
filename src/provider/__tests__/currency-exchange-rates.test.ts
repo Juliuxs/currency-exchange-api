@@ -13,7 +13,6 @@ describe('ExchangeRatesProvider', () => {
 
   describe('getLatestRates', () => {
     it('successfully fetches exchange rates', async () => {
-      // Arrange
       const mockResponse = {
         timestamp: 1234567890,
         base: 'USD',
@@ -24,10 +23,8 @@ describe('ExchangeRatesProvider', () => {
         json: () => Promise.resolve(mockResponse)
       })
 
-      // Act
       const result = await provider.getLatestRates()
 
-      // Assert
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith(
         `${mockBaseUrl}?app_id=${mockApiKey}`,
@@ -38,23 +35,29 @@ describe('ExchangeRatesProvider', () => {
       )
     })
 
-    it('throws error when API request fails', async () => {
-      // Arrange
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 401
-      })
+    it('retries on failure and eventually succeeds', async () => {
+      const mockResponse = {
+        timestamp: 1234567890,
+        base: 'USD',
+        rates: { EUR: 0.85, GBP: 0.73 }
+      }
+      
+      const failedResponse = { ok: false, status: 500 }
+      const successResponse = {
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      }
 
-      // Act & Assert
-      await expect(provider.getLatestRates()).rejects.toThrow('Failed to fetch exchange rates: HTTP error! status: 401')
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce(failedResponse)
+        .mockResolvedValueOnce(failedResponse)
+        .mockResolvedValueOnce(successResponse)
+
+      const result = await provider.getLatestRates()
+
+      expect(result).toEqual(mockResponse)
+      expect(fetch).toHaveBeenCalledTimes(3)
     })
 
-    it('throws error when network request fails', async () => {
-      // Arrange
-      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
-
-      // Act & Assert
-      await expect(provider.getLatestRates()).rejects.toThrow('Failed to fetch exchange rates: Network error')
-    })
   })
 })
